@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Arduino + Socket.IO</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { 
+        font: 13px Helvetica, Arial; 
+        -webkit-transition: background 0.5s ease-in-out;
+        -moz-transition: background 0.5s ease-in-out;
+        -o-transition: background 0.5s ease-in-out;
+        transition: background 0.5s ease-in-out;
+      }
+      #chat{display: none}
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      #messages li.my-message{background: #F6FFA1;font-weight: bold;}
+
+      #nickname{
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        background: #333;
+      }
+      #nickname input{
+        margin-top: 20%;
+      }
+    </style>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form id="nickname">
+       <input id="nick" autocomplete="off" placeholder="Digite seu nome" /><button>Nome</button>
+    </form>
+    <form id="chat">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+    var socket = io();
+
+    socket.on('bg', function(color){
+      $('body').css('background', color);
+    });
+
+    $('#nickname').submit(function(e){
+      e.preventDefault();
+      $(this).fadeOut();
+      $('#chat').fadeIn();
+      socket.emit('set nickname', $('#nick').val());
+    });
+
+    $('#chat').submit(function(e){
+      e.preventDefault();
+      var msg = $('#m').val();
+      socket.emit('message', msg);
+      // $('#messages').append($('<li class="my-message">').text('Me: '+msg));
+      $('#m').val('');
+    });
+
+    socket.on('message', function(msg){
+      $('#messages').append($('<li>').text(msg));
+    });
+  </script>
+  </body>
+</html>
